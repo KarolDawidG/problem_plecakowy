@@ -2,14 +2,12 @@
 import { useState } from "react";
 import { container, heading, input, button, form, label, chartBar, chartContainer, resultHeading, resultsContainer, resultBox, value, items, weight } from "./lib/styles";
 
-// (a) Struktura chromosomu
 interface Chromoson {
-  genes: number[];     // tablica 0/1 – które przedmioty wybrane
-  value: number;       // suma wartości wybranych przedmiotów (fitness)
-  weight: number;      // suma wag wybranych przedmiotów
+  genes: number[];    
+  value: number;       
+  weight: number;      
 }
-
-// (b) Tworzenie populacji
+// w celu sledzenia zmian, dodalem konsol logi, aby widziec jak pracuje skrypt
 const losowyChromosone = (length: number): number[] => {
   const chrom = Array.from({ length }, () => Math.random() > 0.5 ? 1 : 0);
   console.log("Losowy chromosom:", chrom);
@@ -26,7 +24,6 @@ const tworzeniePopulacji = (size: number, chromLength: number): Chromoson[] => {
   return populacja;
 };
 
-// Dane problemu plecakowego
 const VALUES = [360, 83, 59, 130, 431, 67, 230, 52, 93, 125, 670, 892, 600, 38, 48, 147, 78,
 256, 63, 17, 120, 164, 432, 35, 92, 110, 22, 42, 50, 323, 514, 28, 87, 73, 78, 15, 26, 78, 210, 36, 85,
 189, 274, 43, 33, 10, 19, 389, 276, 312];
@@ -34,7 +31,6 @@ const WEIGHTS = [7, 0, 30, 22, 80, 94, 11, 81, 70, 64, 59, 18, 0, 36, 3, 8, 15, 
 26, 48, 55, 6, 29, 84, 2, 4, 18, 56, 7, 29, 93, 44, 71, 3, 86, 66, 31, 65, 0, 79, 20, 65, 52, 13];
 const CAPACITY = 850;
 
-// (c) Ocena chromosomu (fitness)
 const ocenChromosom = (chrom: Chromoson): Chromoson => {
   let value = 0;
   let weight = 0;
@@ -50,7 +46,6 @@ const ocenChromosom = (chrom: Chromoson): Chromoson => {
   return result;
 };
 
-// (d) Selekcja turniejowa
 function turniejowaSelekcja(populacja: Chromoson[], turniej = 3): Chromoson {
   const wybrani = Array.from({ length: turniej }, () =>
     populacja[Math.floor(Math.random() * populacja.length)]
@@ -63,7 +58,6 @@ function turniejowaSelekcja(populacja: Chromoson[], turniej = 3): Chromoson {
   return winner;
 }
 
-// (e) Krzyżowanie jednopunktowe
 function krzyzowanieJednopunktowe(a: Chromoson, b: Chromoson): Chromoson {
   const len = a.genes.length;
   const punkt = Math.floor(Math.random() * len);
@@ -76,7 +70,6 @@ function krzyzowanieJednopunktowe(a: Chromoson, b: Chromoson): Chromoson {
   return result;
 }
 
-// (f) Mutacja
 function mutacja(chrom: Chromoson, mutProb: number): Chromoson {
   const genes = chrom.genes.map((g, i) => {
     if (Math.random() < mutProb) {
@@ -90,7 +83,6 @@ function mutacja(chrom: Chromoson, mutProb: number): Chromoson {
   return result;
 }
 
-// (g) Główna pętla algorytmu genetycznego
 function algorytmGenetyczny({
   popSize,
   generations,
@@ -108,7 +100,7 @@ function algorytmGenetyczny({
       const parent2 = turniejowaSelekcja(populacja);
       let child = krzyzowanieJednopunktowe(parent1, parent2);
       child = mutacja(child, mutProb);
-      child = ocenChromosom(child); // oceń dziecko
+      child = ocenChromosom(child); 
       nowaPopulacja.push(child);
     }
     populacja = nowaPopulacja;
@@ -121,7 +113,6 @@ function algorytmGenetyczny({
   return { best, history };
 }
 
-// ===================== UI (nie zmieniaj stylów, tylko dane!) ======================
 
 export default function Home() {
   const [popSize, setPopSize] = useState(100);
@@ -135,7 +126,6 @@ export default function Home() {
     setIsLoading(true);
     setStarted(false);
 
-    // sztuczne opóźnienie, żeby użytkownik widział "Loading..." (usuń jeśli niepotrzebne)
     await new Promise(res => setTimeout(res, 200));
 
     const res = algorytmGenetyczny({
@@ -227,7 +217,6 @@ export default function Home() {
 function ConvergenceChart({ history }: { history: number[] }) {
   const max = Math.max(...history);
 
-  // Pokaż max 30 słupków
   const step = Math.ceil(history.length / 30);
   const sampled = history.filter((_, i) => i % step === 0 || i === history.length - 1);
 
